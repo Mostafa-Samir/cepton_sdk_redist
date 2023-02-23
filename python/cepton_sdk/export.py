@@ -165,45 +165,41 @@ def save_points_pcd(points, path):
 def save_points_csv(points, path):
     azimuths, elevations = convert_points_to_spherical(points)
     fields = [
-        ("timestamp", "unix timestamp [us]", points.timestamps_usec, "%d"),
-        ("image_x", "image x coordinate (f=1)",
-         points.image_positions[:, 0], "%.3f"),
-        ("image_z", "image z coordinate (f=1)",
-         points.image_positions[:, 1], "%.3f"),
-        ("distance", "distance measurement [m]", points.distances, "%.3f"),
-        ("x", "cartesian x coordinate (right)[m]",
-         points.positions[:, 0], "%.3f"),
-        ("y", "cartesian y coordinate (forward)[m]",
-         points.positions[:, 1], "%.3f"),
-        ("z", "cartesian z coordinate (up)[m]",
-         points.positions[:, 2], "%.3f"),
-        ("azimuth",
-         "spherical azimuth coordinate (from +y axis)[rad]", azimuths, "%.3f"),
-        ("elevation",
-         "spherical elevation coordinate (from +y axis)[rad]", elevations, "%.3f"),
-        ("intensity", "diffuse reflectance (normal: 0-1 | retroreflective: >1)",
-         points.intensities, "%.2f"),
-        ("return_strongest", "measurement is strongest (multi-return)",
+        ("timestamp",  points.timestamps_usec, "%d"),
+        ("image_x",
+         points.image_positions[:, 0], "%f"),
+        ("image_z",
+         points.image_positions[:, 1], "%f"),
+        ("distance", points.distances, "%f"),
+        ("x",
+         points.positions[:, 0], "%f"),
+        ("y",
+         points.positions[:, 1], "%f"),
+        ("z",
+         points.positions[:, 2], "%f"),
+        ("azimuth", azimuths, "%f"),
+        ("elevation", elevations, "%f"),
+        ("intensity",
+         points.intensities, "%f"),
+        ("return_strongest",
          points.return_strongest, "%i"),
-        ("return_farthest", "measurement is farthest (multi-return)",
+        ("return_farthest",
          points.return_farthest, "%i"),
-        ("valid", "measurement is valid", points.valid, "%i"),
-        ("saturated", "measurement is saturated", points.saturated, "%i"),
-        ("segment_id", "segment ID", points.segment_ids, "%i"),
+        ("valid", points.valid, "%i"),
+        ("saturated",  points.saturated, "%i"),
+        ("segment_id", points.segment_ids, "%i"),
     ]
-    dtype = numpy.dtype([(x[0], x[2].dtype) for x in fields])
+    dtype = numpy.dtype([(x[0], x[1].dtype) for x in fields])
     data = numpy.zeros(len(points), dtype=dtype)
     for field in fields:
-        data[field[0]] = field[2]
+        data[field[0]] = field[1]
     options = {
         "delimiter": ",",
-        "header": "{}\n{}".format(
-            ",".join([x[0] for x in fields]),
-            ",".join([x[1] for x in fields])),
-        "fmt": ",".join([x[3] for x in fields]),
+        "header": "{}".format(
+            ",".join([x[0] for x in fields])),
+        "fmt": ",".join([x[2] for x in fields]),
     }
     numpy.savetxt(path, data, **options)
-
 
 @enum.unique
 class PointsFileType(enum.Enum):
